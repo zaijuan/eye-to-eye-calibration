@@ -1,0 +1,61 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(pixel_opt)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
+
+## Enable most warnings
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -std=c++11")
+
+## Enable C++11 support
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+## maximize optimization
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O4")
+
+## Add support for C++11, supported in ROS Kinetic and newer
+# add_definitions(-std=c++11)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  cmake_modules
+  roscpp
+  rospy
+)
+
+# Find OpenCV library
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+# Find Suitesparse library
+find_package(SuiteSparse REQUIRED)
+include_directories(${CHOLMOD_INCLUDE_DIR})
+
+# Find G2O Library 
+find_package(G2O REQUIRED)
+
+# select required components
+SET(G2O_LIBRARIES ${G2O_CORE_LIBRARY} ${G2O_STUFF_LIBRARY} ${G2O_SOLVER_CSPARSE} ${G2O_SOLVER_CSPARSE_EXTENSION} ${G2O_TYPES_SBA} ${G2O_TYPES_SLAM3D})
+
+## DEPENDS: system dependencies of this project that dependent projects also need
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES pixel_opt
+  CATKIN_DEPENDS roscpp rospy tf
+#  DEPENDS system_lib
+)
+add_library( types_edge_extension src/types_edge_extension.cpp )
+
+add_executable(factor_analyse_eye_eye src/factor_analyse_eye_eye.cpp )
+target_link_libraries(factor_analyse_eye_eye types_edge_extension ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${G2O_LIBRARIES})
+
+add_executable(eye_eye_calib_groundtruth src/eye_eye_calib_groundtruth.cpp )
+target_link_libraries(eye_eye_calib_groundtruth types_edge_extension ${catkin_LIBRARIES} ${OpenCV_LIBS} ${G2O_LIBRARIES})
+
+add_executable(eye_eye_calib_realexp src/eye_eye_calib_realexp.cpp )
+target_link_libraries(eye_eye_calib_realexp types_edge_extension ${catkin_LIBRARIES} ${OpenCV_LIBS} ${G2O_LIBRARIES})
+
+add_executable(eye_eye_calib_realexp_knownX src/eye_eye_calib_realexp_knownX.cpp )
+target_link_libraries(eye_eye_calib_realexp_knownX types_edge_extension ${catkin_LIBRARIES} ${OpenCV_LIBS} ${G2O_LIBRARIES})
+

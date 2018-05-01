@@ -1,0 +1,56 @@
+#include "types_sba_extension.hpp"
+
+namespace g2o {
+
+using namespace std;
+
+UpperEdgeProject::UpperEdgeProject : public BaseMultiEdge<3, Eigen::Vector2d>
+{
+  information().setIdentity();
+}
+
+
+
+bool UpperEdgeProject::read(std::istream& is)
+{
+  // measured keypoint
+  for (int i=0; i<2; i++)
+    is >> _measurement[i];
+  setMeasurement(_measurement);
+  information().setIdentity();
+  return true;
+}
+
+
+bool UpperEdgeProject::write(std::ostream& os) const
+{
+  for (int i=0; i<2; i++)
+    os<< measurement()[i] << " ";
+  return os.good();
+}
+
+
+LowerEdgeProject::LowerEdgeProject() : public BaseMultiEdge<3, Eigen::Vector2d>
+{
+  information().setIdentity();
+}
+
+bool LowerEdgeProject::read(std::istream& is)
+{
+  // measured keypoint
+  for (int i=0; i<2; i++)
+    is >> _measurement[i];
+  setMeasurement(_measurement);
+  information().setIdentity();
+  return true;
+}
+
+
+bool LowerEdgeProject::write(std::ostream& os) const
+{
+  for (int i=0; i<2; i++)
+    os  << measurement()[i] << " ";
+  return os.good();
+}
+
+} // g2o
